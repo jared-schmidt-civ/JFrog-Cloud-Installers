@@ -29,7 +29,7 @@ options:
     type: list
   state:
     description:
-      - Desired state of the repository after execution. 
+      - Desired state of the repository after execution.
       - "Present" ensures repositories are present and match the configurations
       - "Absent" ensures matching repositories are deleted
       - "Prune" ensures that only matching repositories are present.  All other repositories are deleted.
@@ -73,7 +73,6 @@ options:
 class ActionModule(ActionBase):
 
     _VALID_ARGS = frozenset(['repository_configs', 'state', 'artifactory_base_url', 'auth_type', 'auth_string', 'ignore_ca_error'])
-
     _PARAM_DEFAULTS = {
         'state': 'Present',
         'ignore_ca_error': False,
@@ -82,14 +81,16 @@ class ActionModule(ActionBase):
 
     # _VALID_REPOSITORYTYPES = frozenset(['local', 'remote', 'virtual', 'federated', 'distribution'])
 
-    # _VALID_PACKAGETYPES = frozenset(['maven', 'gradle', 'ivy', 'sbt', 'helm', 'cargo', 'cocoapods', 'opkg', 'rpm', 'nuget', 'cran', 'gems', 'npm', 'bower', 'debian', 'composer', 'pypi', 'docker', 'vagrant', 'gitlfs', 'go', 'yum', 'conan', 'chef', 'puppet', 'generic'])
+    # _VALID_PACKAGETYPES = frozenset(['maven', 'gradle', 'ivy', 'sbt', 'helm', 'cargo', 'cocoapods', \
+    # 'opkg', 'rpm', 'nuget', 'cran', 'gems', 'npm', 'bower', 'debian', 'composer', 'pypi', 'docker', \
+    # 'vagrant', 'gitlfs', 'go', 'yum', 'conan', 'chef', 'puppet', 'generic'])
 
     def run(self, tmp=None, task_vars=None):
-        ''' This plugin verifies that repositories matching the key, rclass, and packagetype 
+        ''' This plugin verifies that repositories matching the key, rclass, and packagetype
         in the repository configs are present or absent as selected by "state".  When prune is the selected state,
-        all repositories not in the repository_configs are removed.  The plugin uses "artifactory_base_url" 
-        and an authentication method to connect to artifactory's API. CAs are checked by default unless 
-        "ignore_ca_error" is set to True.  The repository type defaults to "local", but can be modified 
+        all repositories not in the repository_configs are removed.  The plugin uses "artifactory_base_url"
+        and an authentication method to connect to artifactory's API. CAs are checked by default unless
+        "ignore_ca_error" is set to True.  The repository type defaults to "local", but can be modified
         by setting it in the "repository_config['rclass']" field.
         '''
 
@@ -100,7 +101,7 @@ class ActionModule(ActionBase):
         # Execute the class's parent definition of the run function
         # (It runs some validation checks and warnings)
         if task_vars is None:
-            task_vars = dict()        
+            task_vars = dict()
         result = super(ActionModule, self).run(task_vars=task_vars)
 
         # Add defaults to arguments
@@ -122,10 +123,10 @@ class ActionModule(ActionBase):
             if repo['packageType'] is None:
                 raise AnsibleOptionsError('"packageType" is a required field in "repository_configs"')
             if repo['rclass'] is None:
-                raise AnsibleOptionsError('"rclass" is a required field in "repository_configs"')            
+                raise AnsibleOptionsError('"rclass" is a required field in "repository_configs"')
         if len(args['repository_configs']) >= 2:
-            for repo1 in range(0, len(args['repository_configs'])-1):
-                for repo2 in range(repo1+1, len(args['repository_configs'])):
+            for repo1 in range(0, len(args['repository_configs']) - 1):
+                for repo2 in range(repo1 + 1, len(args['repository_configs'])):
                     if args['repository_configs'][repo1]['key'].lower() == args['repository_configs'][repo2]['key'].lower():
                         raise AnsibleOptionsError('Repository configurations must have unique "key" names')
         if args['artifactory_base_url'] is None:
@@ -144,7 +145,7 @@ class ActionModule(ActionBase):
 
         # Build base URL path
         baseUrl = args['artifactory_base_url'] + '/artifactory/'
-        
+
         # Build auth for URI request
         uriParams = dict()
         if args['auth_type'] == 'accesstoken':
@@ -173,7 +174,7 @@ class ActionModule(ActionBase):
         # Check for failed query
         if getReposResult.get('failed', False):
             raise AnsibleActionFail('Querying repositories in artifactory failed with status ' + getReposResult['status'] + ': ' + getReposResult['msg'])
-        
+
         # Parse JSON response
         jsonGetResult = json.loads(getReposResult['content'])
 
@@ -280,13 +281,13 @@ class ActionModule(ActionBase):
                     raise AnsibleActionFail('Deleting repository ' + repo['key'] + ' from artifactory failed with status ' + deleteRepoResult['status'] + ': ' + deleteRepoResult['msg'])
 
         # For all other combinations, do nothing.
-        
+
         # Determine result and generate output message
         if addedRepos + updatedRepos + deletedRepos == 0:
             result['msg'] = 'No repositories changed'
             result['changed'] = False
         else:
-            result['msg'] = str(addedRepos) + " repositories were added\n" + str(updatedRepos) + " repositories were updated\n" + str(deletedRepos) + " repositories were deleted"
+            result['msg'] = str(addedRepos) + " repositories were added\r\n" + str(updatedRepos) + " repositories were updated\r\n" + str(deletedRepos) + " repositories were deleted"
             result['changed'] = True
 
         return result
