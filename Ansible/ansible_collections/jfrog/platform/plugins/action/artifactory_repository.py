@@ -45,25 +45,22 @@ options:
         number (if not 80 or 443).
     required: True
     type: string
-  access_token:
+  auth_type:
     description:
-      - Artifactory access token.  Mutually exclusive option with username/password and api_key.
-    required: False
+      - Specifies which authentication type to use with artifactory's API.  Basic auth uses an admin's username
+      and password.
+    choices:
+      - Basic
+      - AccessToken
+      - ApiKey
+    default: Basic
     type: string
-  username:
+  auth_string:
     description:
-      - Artifactory username.  If set, password must also be set.  Mutually exclusive option with access_token and api_key.
-    required: False
-    type: string
-  password:
-    description:
-      - Artifactory password.  If set, username must also be set.  Mutually exclusive option with access_token and api_key.
-    required: False
-    type: string
-  api_key:
-    description:
-      - Artifactory api key.  Mutually exclusive option with username/password and access_token.
-    required: False
+      - The authentication string to be provided in artifactory api calls.  Paired with selection given in "auth_type".
+      - Basic auth requires that auth_string be provided in the format "username:password".  The plugin performs the base64 encoding.
+      - AccessToken and ApiKey require that auth_string be the access token or api key.
+    required: True
     type: string
   ignore_ca_error:
     description:
@@ -75,11 +72,12 @@ options:
 
 class ActionModule(ActionBase):
 
-    _VALID_ARGS = frozenset(['repository_configs', 'state', 'artifactory_base_url', 'access_token', 'username', 'password', 'api_key', 'ignore_ca_error'])
+    _VALID_ARGS = frozenset(['repository_configs', 'state', 'artifactory_base_url', 'auth_type', 'auth_string', 'ignore_ca_error'])
 
     _PARAM_DEFAULTS = {
         'state': 'Present',
-        'ignore_ca_error': False
+        'ignore_ca_error': False,
+        'auth_type': 'Basic'
     }
 
     # _VALID_REPOSITORYTYPES = frozenset(['local', 'remote', 'virtual', 'federated', 'distribution'])
@@ -109,7 +107,7 @@ class ActionModule(ActionBase):
         args = self._PARAM_DEFAULTS.copy()
         args.update(self._task.args)
 
-        # Validate arguments
+        # Validate and adjust arguments as needed
         if args['repository_configs'] is None:
             raise AnsibleOptionsError('"repository_configs" is a required argument')
         if isinstance(args['repository_configs'], str):
@@ -132,31 +130,14 @@ class ActionModule(ActionBase):
                         raise AnsibleOptionsError('Repository configurations must have unique "key" names')
         if args['artifactory_base_url'] is None:
             raise AnsibleOptionsError('"artifactory_base_url" is a required argument')
-        if (args['state'].lower() == 'absent' or args['state'].lower() == 'present' or args['state'].lower() == 'prune') is False:
-            raise AnsibleOptionsError('"State" must be "Absent", "Present", or "Prune"')
-        if args['access_token'] is not None and (args['username'] is not None or args['password'] is not None or args['api_key'] is not None):
-            raise AnsibleOptionsError('Illegal option: Only one authentication method allowed')
-        if args['api_key'] is not None and (args['username'] is not None or args['password'] is not None or args['access_token'] is not None):
-            raise AnsibleOptionsError('Illegal option: Only one authentication method allowed')
-        if (args['username'] is not None or args['password'] is not None) and (args['access_token'] is not None or args['api_key'] is not None):
-            raise AnsibleOptionsError('Illegal option: Only one authentication method allowed')
-        if args['username'] is not None and args['password'] is None:
-            raise AnsibleOptionsError('Illegal option: Password is required if username is specified')
-        if args['password'] is not None and args['username'] is None:
-            raise AnsibleOptionsError('Illegal option: Username is required if password is specified')
-        if args['username'] is None and args['api_key'] is None and args['access_token'] is None:
-            raise AnsibleOptionsError('Valid authentication required')
-
-        # Adjust type, defaults, and value of arguments as needed.
         args['state'] = str(args['state']).lower()
-        args['artifactory_base_url'] = str(args['artifactory_base_url']).lower()
-        if args['access_token'] is not None:
-            args['access_token'] = str(args['access_token'])
-        if args['api_key'] is not None:
-            args['api_key'] = str(args['api_key'])
-        if args['username'] is not None:
-            args['username'] = str(args['username'])
-            args['password'] = str(args['password'])
+        if not (args['state'] == 'absent' or args['state'] == 'present' or args['state'] == 'prune'):
+            raise AnsibleOptionsError('"State" must be "Absent", "Present", or "Prune"')
+        args['auth_type'] = str(args['auth_type']).lower()
+        if not (args['auth_type'] == 'basic' or args['auth_type'] == 'accesstoken' or args['auth_type'] == 'apikey'):
+            raise AnsibleOptionsError('"auth_type" must be "Basic", "AccessToken", or "ApiKey"')
+        if args['auth_type'] == 'basic' and ':' not in args['auth_string']:
+            raise AnsibleOptionsError('Basic auth_type requires that username and password be provided in auth_string in the format username:password')
         if str(args['ignore_ca_error']).lower() == 'false' or str(args['ignore_ca_error']).lower() == 'no':
             args['ignore_ca_error'] = False
         args['ignore_ca_error'] = bool(args['ignore_ca_error'])
@@ -166,12 +147,12 @@ class ActionModule(ActionBase):
         
         # Build auth for URI request
         uriParams = dict()
-        if args['api_key'] is not None:
-            uriParams['headers'] = {"X-JFrog-Art-Api": args['api_key']}
-        elif args['access_token'] is not None:
-            uriParams['headers'] = {"Authorization": ("Bearer " + args['access_token'])}
+        if args['auth_type'] == 'accesstoken':
+            uriParams['headers'] = {"Authorization": ("Bearer " + args['auth_string'])}
+        elif args['auth_type'] == 'apikey':
+            uriParams['headers'] = {"X-JFrog-Art-Api": args['auth_string']}
         else:
-            uriParams['headers'] = {"Authorization": ("Basic " + base64.standard_b64encode(args['username'] + ':' + args['password']))}
+            uriParams['headers'] = {"Authorization": ("Basic " + base64.standard_b64encode(args['auth_string']))}
 
         # Set cert validation for requests.  It defaults to 'yes' in the ansible URI module.
         if args['ignore_ca_error']:

@@ -109,9 +109,9 @@ artifactory_repository_state: "Present"
 
 # Valid values are "Basic", "AccessToken", or "ApiKey"
 # "Basic" utilizes the "artifactory_admin_username" and "artifactory_admin_password" defined above
+# "AccessToken" and "ApiKey" utilizes "artifactory_auth_token"
 artifactory_auth: "Basic"
-# artifactory_accesstoken:
-# artifactory_apikey:
+# artifactory_auth_token:
 
 # Repository configurations can be found at https://www.jfrog.com/confluence/display/JFROG/Repository+Configuration+JSON
 # Configurations must contain 'key', 'rclass', and 'packageType' at a minimum with no duplicate keys.
