@@ -8,3 +8,8 @@
   when:
     - artifactory_enabled
     - artifactory_upgrade_only
+- name: perform configuration
+  include_tasks: "configure.yml"
+  when: 
+    - artifactory_enabled
+    - artifactory_configure

@@ -1,0 +1,28 @@
+---
+- name: Assert presence, absence, or pruning of configured repositories with username and password
+  jfrog.platform.artifactory_repository:
+    artifactory_base_url: "{{ artifactory_url }}"
+    state: "{{ artifactory_repository_state }}"
+    repository_config: "{{ artifactory_repositories }}"
+    username: "{{ artifactory_admin_username }}"
+    password: "{{ artifactory_admin_password }}"
+    ignore_ca_error: "{{ artifactory_ignore_ca_error }}"
+  when: artifactory_auth == "Basic"
+
+- name: Assert presence, absence, or pruning of configured repositories with access token
+  jfrog.platform.artifactory_repository:
+    artifactory_base_url: "{{ artifactory_url }}"
+    state: "{{ artifactory_repository_state }}"
+    repository_config: "{{ artifactory_repositories }}"
+    access_token: "{{ artifactory_accesstoken }}"
+    ignore_ca_error: "{{ artifactory_ignore_ca_error }}"
+  when: artifactory_auth == "AccessToken"
+
+- name: Assert presence, absence, or pruning of configured repositories with API key
+  jfrog.platform.artifactory_repository:
+    artifactory_base_url: "{{ artifactory_url }}"
+    state: "{{ artifactory_repository_state }}"
+    repository_config: "{{ artifactory_repositories }}"
+    api_key: "{{ artifactory_apikey }}"
+    ignore_ca_error: "{{ artifactory_ignore_ca_error }}"
+  when: artifactory_auth == "ApiKey"
