@@ -1,9 +1,9 @@
 ---
-- name: Assert presence, absence, or pruning of configured repositories
+- name: Configure repositories in artifactory
   jfrog.platform.artifactory_repository:
     artifactory_base_url: "{{ artifactory_url }}"
     state: "{{ artifactory_repository_state }}"
-    repository_config: "{{ artifactory_repositories }}"
+    repository_configs: "{{ artifactory_repositories }}"
     auth_type: "{{ artifactory_auth }}"
     {% if artifactory_auth == 'Basic' %}
     auth_string: "{{ artifactory_admin_username}}:{{ artifactory_admin_password}}"
@@ -11,3 +11,5 @@
     auth_string: "{{ artifactory_auth_token }}"
     {% endif %}
     ignore_ca_error: "{{ artifactory_ignore_ca_error }}"
+  when: 
+    - configure_repositories

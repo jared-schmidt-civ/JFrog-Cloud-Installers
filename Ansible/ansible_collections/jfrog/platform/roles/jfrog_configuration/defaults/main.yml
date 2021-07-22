@@ -1,0 +1,29 @@
+# if repository configuration is desired
+configure_repositories: true
+artifactory_url: "https://example.jfrog.io"
+artifactory_ignore_ca_error: false
+
+# Valid values of repository state are "Present", "Absent", or "Prune".  Present ensures "artifactory_repositories" are
+# present and updated to match the list.  "Absent" ensures that "artifactory_repositories" are removed.  "Prune" is a 
+# destructive option that ensures repositories listed in "artifactory_repositories" are present and updated to match the
+# list as well as removes any other repositories from artifactory that are not in the list.
+artifactory_repository_state: "Present"
+
+# Valid values are "Basic", "AccessToken", or "ApiKey"
+# "Basic" utilizes the "artifactory_admin_username" and "artifactory_admin_password" defined above
+# "AccessToken" and "ApiKey" utilizes "artifactory_auth_token"
+artifactory_auth: "Basic"
+artifactory_admin_username: admin
+artifactory_admin_password: password
+# artifactory_auth_token:
+
+# Repository configurations can be found at https://www.jfrog.com/confluence/display/JFROG/Repository+Configuration+JSON
+# Configurations must contain 'key', 'rclass', and 'packageType' at a minimum with no duplicate keys.
+artifactory_repositories:
+  - key: example-generic-local
+    rclass: local
+    packageType: generic
+    description: Example of a local repository storing generic artifacts
+  # - key: example-maven-local
+  #   rclass: local
+  #   packageType: maven
