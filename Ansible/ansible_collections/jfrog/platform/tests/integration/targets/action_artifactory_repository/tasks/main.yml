@@ -1,0 +1,2 @@
+---
+- include_tasks: artifactory_repositories.yml

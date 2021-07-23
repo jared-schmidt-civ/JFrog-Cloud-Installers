@@ -1,0 +1,159 @@
+---
+- block:
+  - name: Test prune (previous state unknown)
+    jfrog.platform.artifactory_repository:
+      artifactory_base_url: "{{ artifactory_url }}"
+      state: Prune
+      repository_configs: 
+        - key: test-basic-generic-local
+          rclass: local
+          packageType: generic
+          description: Testing the creation and deletion of a local repository storing generic artifacts
+      auth_type: "{{ artifactory_auth }}"
+      {% if artifactory_auth == 'Basic' %}
+      auth_string: "{{ artifactory_admin_username }}:{{ artifactory_admin_password }}"
+      {% else %}
+      auth_string: "{{ artifactory_auth_token }}"
+      {% endif %}
+      ignore_ca_error: "{{ artifactory_ignore_ca_error }}"
+    register: test_prune
+
+  - name: Assert that prune worked
+    assert:
+      that:
+        - test_prune is succeeded  
+
+  - name: Test present (new repo created)
+    jfrog.platform.artifactory_repository:
+      artifactory_base_url: "{{ artifactory_url }}"
+      state: Present
+      repository_configs: 
+        - key: test2-basic-generic-local
+          rclass: local
+          packageType: generic
+          description: Testing the creation of a local repository storing generic artifacts
+      auth_type: "{{ artifactory_auth }}"
+      {% if artifactory_auth == 'Basic' %}
+      auth_string: "{{ artifactory_admin_username }}:{{ artifactory_admin_password }}"
+      {% else %}
+      auth_string: "{{ artifactory_auth_token }}"
+      {% endif %}
+      ignore_ca_error: "{{ artifactory_ignore_ca_error }}"
+    register: test_present
+
+  - name: Assert that present worked
+    assert:
+      that:
+        - test_present is succeeded
+        - test_present['changed']
+        - test_present['msg'] == "1 repositories were added\r\n0 repositories were updated\r\n0 repositories were deleted"
+
+  - name: Test present (repo already exists)
+    jfrog.platform.artifactory_repository:
+      artifactory_base_url: "{{ artifactory_url }}"
+      state: present
+      repository_configs: 
+        - key: test2-basic-generic-local
+          rclass: local
+          packageType: generic
+          description: Testing the creation of a local repository storing generic artifacts
+      auth_type: "{{ artifactory_auth }}"
+      {% if artifactory_auth == 'Basic' %}
+      auth_string: "{{ artifactory_admin_username }}:{{ artifactory_admin_password }}"
+      {% else %}
+      auth_string: "{{ artifactory_auth_token }}"
+      {% endif %}
+      ignore_ca_error: "{{ artifactory_ignore_ca_error }}"
+    register: test_exists
+
+  - name: Assert that presence worked
+    assert:
+      that:
+        - test_exists is succeeded
+        - test_exists['msg'] == 'No repositories changed'
+        - not test_exists['changed']
+
+  - name: Test prune (add repo, keep repo, delete repo)
+    jfrog.platform.artifactory_repository:
+      artifactory_base_url: "{{ artifactory_url }}"
+      state: prune
+      repository_configs: 
+        - key: test2-basic-generic-local
+          rclass: local
+          packageType: generic
+          description: Testing the creation and deletion of a local repository storing generic artifacts
+        - key: test3-basic-generic-local
+          rclass: local
+          packageType: generic
+          description: Testing the creation and deletion of a local repository storing generic artifacts
+      auth_type: "{{ artifactory_auth }}"
+      {% if artifactory_auth == 'Basic' %}
+      auth_string: "{{ artifactory_admin_username }}:{{ artifactory_admin_password }}"
+      {% else %}
+      auth_string: "{{ artifactory_auth_token }}"
+      {% endif %}
+      ignore_ca_error: "{{ artifactory_ignore_ca_error }}"
+    register: test_prune_full
+
+  - name: Assert that prune worked
+    assert:
+      that:
+        - test_prune_full is succeeded
+        - test_prune_full['changed']
+        - test_prune_full['msg'] == "1 repositories were added\r\n1 repositories were updated\r\n1 repositories were deleted"
+
+  - name: Test absent (remove repo)
+    jfrog.platform.artifactory_repository:
+      artifactory_base_url: "{{ artifactory_url }}"
+      state: Absent
+      repository_configs: 
+        - key: test2-basic-generic-local
+          rclass: local
+          packageType: generic
+          description: Testing the creation of a local repository storing generic artifacts
+        - key: test3-basic-generic-local
+          rclass: local
+          packageType: generic
+      auth_type: "{{ artifactory_auth }}"
+      {% if artifactory_auth == 'Basic' %}
+      auth_string: "{{ artifactory_admin_username }}:{{ artifactory_admin_password }}"
+      {% else %}
+      auth_string: "{{ artifactory_auth_token }}"
+      {% endif %}
+      ignore_ca_error: "{{ artifactory_ignore_ca_error }}"
+    register: test_removed
+
+  - name: Assert that removal worked
+    assert:
+      that:
+        - test_removed is succeeded
+        - test_removed['changed']
+        - test_removed['msg'] == "0 repositories were added\r\n0 repositories were updated\r\n2 repositories were deleted"
+
+  - name: Test absent (no repo exists)
+      jfrog.platform.artifactory_repository:
+      artifactory_base_url: "{{ artifactory_url }}"
+      state: absent
+      repository_configs: 
+        - key: test2-basic-generic-local
+          rclass: local
+          packageType: generic
+          description: Testing the creation of a local repository storing generic artifacts
+        - key: test3-basic-generic-local
+          rclass: local
+          packageType: generic
+      auth_type: "{{ artifactory_auth }}"
+      {% if artifactory_auth == 'Basic' %}
+      auth_string: "{{ artifactory_admin_username }}:{{ artifactory_admin_password }}"
+      {% else %}
+      auth_string: "{{ artifactory_auth_token }}"
+      {% endif %}
+      ignore_ca_error: "{{ artifactory_ignore_ca_error }}"
+    register: test_gone
+
+  - name: Assert that already absent worked
+    assert:
+      that:
+        - test_gone is succeeded
+        - not test_gone['changed']
+        - test_gone['msg'] == 'No repositories changed'

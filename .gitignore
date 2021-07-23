@@ -5,4 +5,4 @@
 ./idea
 .idea/
 .DS_Store
-
+Ansible/ansible_collections/jfrog/platform/tests/output
