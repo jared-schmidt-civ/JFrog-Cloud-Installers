@@ -1,11 +1,10 @@
 galaxy_info:
-  author: "JFrog Maintainers Team <installers@jfrog.com>"
-  description: "The artifactory role installs the Artifactory Pro software onto the host."
-  company: JFrog
+  author: "Jared Schmidt <jared.schmidt.civ@gmail.com>"
+  description: "The jfrog_configuration role configures Artifactory (cloud or self hosted)."
 
   issue_tracker_url: "https://github.com/jfrog/JFrog-Cloud-Installers/issues"
 
-  license: license (Apache-2.0)
+  license: Creative Commons Zero 1.0 (CC0 1.0), 2021
 
   min_ansible_version: 2.9
 
