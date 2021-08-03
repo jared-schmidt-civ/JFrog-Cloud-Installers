@@ -1,3 +1,11 @@
+#!/usr/bin/python
+
+# Public Domain 2021, Jared Schmidt <jared.schmidt.civ@gmail.com>
+# CC0 1.0 Universal license (see https://creativecommons.org/publicdomain/zero/1.0/)
+# License applies only to the contents of this file, not the collection as a whole
+from __future__ import (absolute_import, division, print_function)
+__metaclass__ = type
+
 class ModuleDocFragment(object):
     DOCUMENTATION = r'''
 options:
