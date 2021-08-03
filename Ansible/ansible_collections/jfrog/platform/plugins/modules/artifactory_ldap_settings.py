@@ -7,8 +7,7 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 from ansible.module_utils.ArtifactoryApi import ArtifactoryApi
-import ansible.module_utils.urls
-import urllib
+from ansible.module_utils.basic import AnsibleModule
 
 DOCUMENTATION = r'''
 ---
@@ -160,9 +159,6 @@ message:
     sample: 'LDAP settings modified'
 '''
 
-from ansible.module_utils.basic import AnsibleModule
-import ansible.module_utils.urls
-
 
 def run_module():
     # define available arguments/parameters a user can pass to the module
@@ -235,7 +231,7 @@ def main():
 
 class ArtifactoryLDAP(ArtifactoryApi):
     def __init__(self, artifactory_base_url, auth_type, auth_string, ignore_ca_error = False, inCheckMode = False):
-        super(artifactory_base_url, auth_type, auth_string, ignore_ca_error, inCheckMode)
+        super().__init__(artifactory_base_url, auth_type, auth_string, ignore_ca_error, inCheckMode)
         self.baseUrl += '/artifactory/api/plugins/execute/'
 
     def _getRecordKeyList(self):
