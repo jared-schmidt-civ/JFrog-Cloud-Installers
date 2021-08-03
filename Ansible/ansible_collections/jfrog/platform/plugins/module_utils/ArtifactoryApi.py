@@ -12,10 +12,10 @@ message, and Delete is a DELETE message.
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
+import urllib
 from ansible.module_utils.urls import Request
 import base64
 import json
-import urllib
 from abc import ABC, abstractmethod
 
 class ArtifactoryApi(ABC):
@@ -184,12 +184,12 @@ class ArtifactoryApi(ABC):
                 onlyInListA.append(item.copy())
         return (onlyInListA, inBoth, onlyInListB)
 
-    def _sendRequest(self, urltail, method, content = None)
+    def _sendRequest(self, urltail, method, content = None):
         '''This helper function uses self.baseUrl and urltail to send a request and return a parsed object
         :returns: Parsed JSON object (List or Dictionary)
         '''
         url = self.baseUrl + urltail
-        request = urls.Request(headers=self.headers, validate_certs=self.ignore_ca_error)
+        request = Request(headers=self.headers, validate_certs=self.ignore_ca_error)
         response = request.open(method, urllib.parse.quote(url), data=content)
         return json.loads(response.read())
 
