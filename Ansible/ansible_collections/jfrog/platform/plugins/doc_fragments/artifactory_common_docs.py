@@ -17,6 +17,7 @@ options:
         - ApiKey
         default: Basic
         type: string
+        required: True
     auth_string:
         description:
         - The authentication string to be provided in artifactory api calls.  Paired with selection given in "auth_type".

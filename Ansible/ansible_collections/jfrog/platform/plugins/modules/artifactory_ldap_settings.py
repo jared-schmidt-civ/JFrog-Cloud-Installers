@@ -30,9 +30,54 @@ description:
 options:
     ldap_settings:
         description:
-          - 
+          - LDAP settings to configure in Artifactory
         type: list of dictionaries
         suboptions:
+          key:
+            description:
+              - The setting's unique ID.
+            type: string
+            required: True
+          enabled:
+            description:
+              - Whether this setting is enabled.
+            type: boolean
+          ldapUrl:
+            description:
+              - Location of the LDAP server.
+            type: string
+          userDnPattern:
+            description:
+              - A DN pattern which can be used to log into LDAP.
+            type: string
+          searchFilter:
+            description:
+              - A filter used to search for the user DN.
+            type: string
+          searchBase:
+            description:
+              - Context name to search in.
+            type: string
+          searchSubTree:
+            description:
+              - Whether to perform deep searching.
+            type: boolean
+          managerDn:
+            description:
+              - The full DN of the user performing searches.
+            type: string
+          managerPassword:
+            description:
+              - The password for the above user.
+            type: string
+          autoCreateUser:
+            description:
+              - Whether users logged in with LDAP should be created automatically.
+            type: boolean
+          emailAttribute:
+            description:
+              - An attribute to map a user's email to an automatically created Artifactory user.
+            type: string
 
 
 # Specify this value according to your collection
@@ -63,7 +108,7 @@ EXAMPLES = r'''
     artifactory_base_url: https://artifactory.example.com:8081
     state: Present
     auth_type: Basic
-    auth_string: {{ artifactory_username }}:{{ artifactory_password }}
+    auth_string: "{{ artifactory_username }}:{{ artifactory_password }}"
 
 # Delete an LDAP configuration while not verifying CA certs
 - name: Delete LDAP configuration
@@ -73,7 +118,7 @@ EXAMPLES = r'''
     artifactory_base_url: https://artifactory.example.com
     state: Absent
     auth_type: ApiKey
-    auth_string: {{ api_key }}
+    auth_string: "{{ api_key }}"
     ignore_ca_error: True
 
 # Add or update LDAP configurations while deleting all others
@@ -102,10 +147,10 @@ EXAMPLES = r'''
         managerPassword: {{ ldap_svcacct_password }}
         autoCreateUser: false
         emailAttribute: email
-    artifactory_base_url: https://artifactory.example.com:8081
+    artifactory_base_url: http://artifactory.example.com
     state: Prune
     auth_type: AccessToken
-    auth_string: {{ access_token }}
+    auth_string: "{{ access_token }}"
 
 # These are examples of possible return values, and in general should use other names for return values.
 message:
