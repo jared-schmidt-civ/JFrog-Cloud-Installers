@@ -1,13 +1,6 @@
-# if repository configuration is desired
-configure_repositories: true
+# ----- API endpoint information -----
 artifactory_url: "https://example.jfrog.io"
 artifactory_ignore_ca_error: false
-
-# Valid values of repository state are "Present", "Absent", or "Prune".  Present ensures "artifactory_repositories" are
-# present and updated to match the list.  "Absent" ensures that "artifactory_repositories" are removed.  "Prune" is a 
-# destructive option that ensures repositories listed in "artifactory_repositories" are present and updated to match the
-# list as well as removes any other repositories from artifactory that are not in the list.
-artifactory_repository_state: "Present"
 
 # Valid values are "Basic", "AccessToken", or "ApiKey"
 # "Basic" utilizes the "artifactory_admin_username" and "artifactory_admin_password" defined above
@@ -16,6 +9,40 @@ artifactory_auth: "Basic"
 artifactory_admin_username: admin
 artifactory_admin_password: password
 # artifactory_auth_token:
+
+# ----- LDAP Configuration -----
+# Requires that artifactory have "LDAP Settings Config" and "LDAP Groups Config" plugins installed
+configure_ldap_settings: false
+
+# Valid values of ldap config state are "Present", "Absent", or "Prune".  Present ensures "ldap_settings" are
+# present and updated to match the list.  "Absent" ensures that "ldap_settings" are removed.  "Prune" is a 
+# destructive option that ensures settings listed in "ldap_settings" are present and updated to match the
+# list as well as removes any other LDAP settings from artifactory that are not in the list.
+ldap_settings_state: "Present"
+
+# Settings for the LDAP settings plugin can be found at https://github.com/jfrog/artifactory-user-plugins/tree/master/config/ldapSettingsConfig
+# "Key" is a required field
+ldap_settings:
+  - key: newsetting
+    enabled: true
+    ldapUrl: "ldap://somehost"
+    userDnPattern: "uid={0}"
+    searchFilter: null
+    searchBase: null
+    searchSubTree: false
+    managerDn: null
+    managerPassword: null
+    autoCreateUser: false
+    emailAttribute: email
+
+# ----- Repository Configuration -----
+configure_repositories: true
+
+# Valid values of repository state are "Present", "Absent", or "Prune".  Present ensures "artifactory_repositories" are
+# present and updated to match the list.  "Absent" ensures that "artifactory_repositories" are removed.  "Prune" is a 
+# destructive option that ensures repositories listed in "artifactory_repositories" are present and updated to match the
+# list as well as removes any other repositories from artifactory that are not in the list.
+artifactory_repository_state: "Present"
 
 # Repository configurations can be found at https://www.jfrog.com/confluence/display/JFROG/Repository+Configuration+JSON
 # Configurations must contain 'key', 'rclass', and 'packageType' at a minimum with no duplicate keys.
