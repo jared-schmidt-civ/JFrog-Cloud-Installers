@@ -102,7 +102,7 @@ class ActionModule(ActionBase):
         elif args['auth_type'] == 'apikey':
             uriParams['headers'] = {"X-JFrog-Art-Api": args['auth_string']}
         else:
-            uriParams['headers'] = {"Authorization": ("Basic " + base64.standard_b64encode(args['auth_string']))}
+            uriParams['headers'] = {"Authorization": ("Basic " + str(base64.standard_b64encode(args['auth_string'].encode('utf-8'))))}
 
         # Set cert validation for requests.  It defaults to 'yes' in the ansible URI module.
         if args['ignore_ca_error']:
@@ -122,7 +122,7 @@ class ActionModule(ActionBase):
 
         # Check for failed query
         if getReposResult.get('failed', False):
-            raise AnsibleActionFail('Querying repositories in artifactory failed with status ' + getReposResult['status'] + ': ' + getReposResult['msg'])
+            raise AnsibleActionFail('Querying repositories in artifactory failed with status ' + str(getReposResult['status']) + ': ' + getReposResult['msg'])
 
         # Parse JSON response
         jsonGetResult = json.loads(getReposResult['content'])
@@ -167,7 +167,7 @@ class ActionModule(ActionBase):
 
                     # Check for failed call
                     if putRepoResult.get('failed', False):
-                        raise AnsibleActionFail('Adding repository ' + repo['key'] + ' to artifactory failed with status ' + putRepoResult['status'] + ': ' + putRepoResult['msg'])
+                        raise AnsibleActionFail('Adding repository ' + repo['key'] + ' to artifactory failed with status ' + str(putRepoResult['status']) + ': ' + putRepoResult['msg'])
 
         # If the state is present or prune and inBoth is not empty, update the inBoth repos in artifactory
         if (args['state'] == 'present' or args['state'] == 'prune') and inBoth:
@@ -183,7 +183,7 @@ class ActionModule(ActionBase):
 
                 # Check for failed query
                 if getRepoConfigResult.get('failed', False):
-                    raise AnsibleActionFail('Querying repository config for ' + repo['key'] + ' in artifactory failed with status ' + getRepoConfigResult['status'] + ': ' + getRepoConfigResult['msg'])
+                    raise AnsibleActionFail('Querying repository config for ' + repo['key'] + ' in artifactory failed with status ' + str(getRepoConfigResult['status']) + ': ' + getRepoConfigResult['msg'])
 
                 currentConfig = json.loads(getRepoConfigResult['content'])
                 futureConfig = currentConfig.copy()
@@ -205,7 +205,7 @@ class ActionModule(ActionBase):
 
                         # Check for failed call
                         if postRepoConfigResult.get('failed', False):
-                            raise AnsibleActionFail('Updating repository config for ' + repo['key'] + ' in artifactory failed with status ' + postRepoConfigResult['status'] + ': ' + postRepoConfigResult['msg'])
+                            raise AnsibleActionFail('Updating repository config for ' + repo['key'] + ' in artifactory failed with status ' + str(postRepoConfigResult['status']) + ': ' + postRepoConfigResult['msg'])
 
         # If the state is absent and inBoth is not empty, remove the inBoth repos from artifactory
         # If the state is prune and onlyInArtifactory is not empty, remove the onlyInArtifactory repos from artifactory
@@ -227,7 +227,7 @@ class ActionModule(ActionBase):
 
                 # Check for failed call
                 if deleteRepoResult.get('failed', False):
-                    raise AnsibleActionFail('Deleting repository ' + repo['key'] + ' from artifactory failed with status ' + deleteRepoResult['status'] + ': ' + deleteRepoResult['msg'])
+                    raise AnsibleActionFail('Deleting repository ' + repo['key'] + ' from artifactory failed with status ' + str(deleteRepoResult['status']) + ': ' + deleteRepoResult['msg'])
 
         # For all other combinations, do nothing.
 
